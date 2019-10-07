@@ -1,0 +1,211 @@
+#include <iostream>
+#include <string>
+#include <istream>
+
+using namespace std;
+
+template <class Ty>
+class stack 
+{
+
+public:
+	stack();
+	stack(const int&);
+	~stack()  noexcept;
+	Ty& top() const;
+	void push(const Ty& val);
+	void pop();
+	bool empty() const noexcept;
+	void print() const noexcept;
+private:
+
+	Ty* array_;
+	size_t array_size_;
+	size_t count_;
+};
+
+template <typename Ty>
+void stack<Ty>::push(const Ty &value)
+{
+
+	if (array_size_ == count_)
+	{
+		cout << "overflow" << endl;
+		return;
+	}
+
+	array_[count_] = value;
+	++count_;
+}
+
+template <class Ty>
+Ty& stack<Ty>::top() const
+{
+	return array_[count_ - 1];
+}
+
+template <class Ty>
+bool stack<Ty>::empty() const noexcept
+{
+	return count_ == 0;
+}
+
+template <class Ty>
+void stack<Ty>::print() const noexcept
+{
+	if (count_ == 0) 
+	{
+		cout << "empty" << endl;
+	}
+	else
+	{
+		for (unsigned int i = 0; i < count_ - 1; i++) cout << array_[i] << " ";
+			cout << array_[count_ - 1] << endl;
+	}
+}
+
+template <class Ty>
+stack<Ty>::stack() : count_{ 0 }, array_size_{ 0 }, array_{ nullptr }
+{
+}
+
+template <class Ty>
+stack<Ty>::stack(const int& n)
+{
+	count_ = 0;
+	array_size_ = n;
+	array_ = new Ty[n];
+}
+
+template <class Ty>
+stack<Ty>::~stack() noexcept
+{
+	delete[] array_;
+}
+
+template <class Ty>
+void stack<Ty>::pop()
+{
+	--count_;
+}
+
+int get_info(const string& s)
+{
+		if (s == "push")
+		{
+			return 1;
+		}
+		else if (s == "pop")
+		{
+			return 2;
+		}
+		else if (s == "print")
+		{
+			return 3;
+		}
+		else return -1;
+};
+
+
+int main()
+{
+	int info_flag, n, count;
+	string str;
+	string value;
+	count = 0;
+
+	while (cin >> str)
+	{
+		if (str == "set_size")
+		{
+			if (cin >> n)
+			{
+				if (cin.get() == '\n')
+				{
+					count = n;
+					break;
+				}
+				else
+				{
+					cout << "error" << endl;
+					while (cin.get() != '\n') continue;
+				}
+			}
+			else
+			{
+				cout << "error" << endl;
+				while (cin.get() != '\n') continue;
+			}
+		}
+		else
+		{
+			cout << "error" << endl;
+			while (cin.get() != '\n') continue;
+		}
+	}
+
+	stack <string> stack1(count);
+
+	while (cin >> str)
+	{
+		info_flag = get_info(str);
+		switch (info_flag)
+		{
+		case 1:
+		{
+			cin >> value;
+			if (cin.get() == '\n')
+				stack1.push(value);
+			else
+			{
+				cout << "error" << endl;
+				while (cin.get() != '\n') continue;
+			}
+		}break;
+		case 2:
+		{
+			if (cin.get() == '\n')
+			{
+				if (stack1.empty())
+				{
+					cout << "underflow" << endl;
+				}
+				else
+				{
+					cout << stack1.top() << endl;
+					stack1.pop();
+				}
+			}
+			else
+			{
+				cout << "error" << endl;
+				while (cin.get() != '\n') continue;
+			}
+		}break;
+		case 3:
+		{
+
+			if (cin.get() == '\n')
+			{
+				stack1.print();
+			}
+			else
+			{
+				cout << "error" << endl;
+				while (cin.get() != '\n') continue;
+			}
+		}break;
+		case -1:
+		{
+			cout << "error" << endl;
+			while (cin.get() != '\n') continue;
+		}break;
+		default:
+		{
+			cout << "error" << endl;
+			while (cin.get() != '\n') continue;
+		} break;
+		}
+	}
+	return 0;
+}
