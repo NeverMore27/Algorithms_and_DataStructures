@@ -1,0 +1,256 @@
+// ConsoleApplication3.cpp: определяет точку входа для консольного приложения.
+
+#include <sstream>
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+template <class Ty>
+class queue 
+{
+
+public:
+	queue();
+	queue(const int&);
+	~queue()  noexcept;
+	Ty& top() const;
+	void push(const Ty& val, ostream& out);
+	void pop();
+	bool empty() const noexcept;
+	void print(ostream& out) const noexcept;
+private:
+
+	Ty* array_;
+	size_t array_size_, count_;
+	size_t first_, last_;
+};
+
+
+template <typename Ty>
+void queue<Ty>::push(const Ty &value, ostream& out)
+{
+	if (count_ == array_size_)
+	{
+		out << "overflow" << endl;
+		return;
+	}
+	array_[last_] = value;
+	last_ = (last_ + 1) % array_size_;
+	count_++;
+	
+}
+
+template <class Ty>
+Ty& queue<Ty>::top() const
+{
+	return array_[first_];
+}
+
+template <class Ty>
+void queue<Ty>::pop()
+{
+
+	first_ = (first_+1) % array_size_;
+	count_--;
+}
+
+template <class Ty>
+bool queue<Ty>::empty() const noexcept
+{
+	return (count_== 0);
+}
+
+template <class Ty>
+void queue<Ty>::print(ostream& out) const noexcept
+{
+	if (count_ == 0)
+	{
+		out << "empty" << endl;
+	}
+	else
+	{
+		if (last_ > first_)
+		{
+			for (unsigned int i = first_; i < last_ - 1;++i)
+			{
+				out << array_[i] << ' ';
+			}
+			out << array_[last_ - 1];
+		}
+
+		if (last_ < first_)
+		{
+			if (last_ != 0)
+			{
+				for (unsigned int i = first_; i < count_; ++i)
+				{
+					out << array_[i] << ' ';
+				}
+				for (unsigned int i = 0; i < last_-1; ++i)
+				{
+					out << array_[i] << ' ';
+				}
+				out << array_[last_ - 1];
+			}
+			else
+			{
+				for (unsigned int i = first_; i <count_; ++i)
+				{
+					out << array_[i] << ' ';
+				}
+				out << array_[count_];
+			}
+			
+		}
+
+		if (last_ == first_)
+		{
+			if (first_ == 0)
+			{
+				for (unsigned int i = first_; i < count_ - 1;++i)
+				{
+					out << array_[i] << ' ';
+				}
+				out << array_[count_ - 1];
+			}
+			else
+			{
+				for (unsigned int i = first_; i < count_;++i)
+				{
+					out << array_[i] << ' ';
+				}
+				for (unsigned int i = 0; i < last_-1;++i)
+				{
+					out << array_[i] << ' ';
+				}
+				out << array_[last_ - 1];
+			}
+		}
+		out << endl;
+	}
+}
+
+template <class Ty>
+queue<Ty>::queue() : count_{ 0 }, array_size_{ 0 }, array_{ nullptr }, last_{ 0 }, first_{ 1 }
+{
+}
+
+template <class Ty>
+queue<Ty>::queue(const int& n)
+{
+	count_ = 0;
+	array_size_ = n;
+	array_ = new Ty[n];
+	first_ = 0;
+	last_ = 0;
+}
+
+template <class Ty>
+queue<Ty>::~queue() noexcept
+{
+	delete[] array_;
+}
+
+
+int main(int argc, char *argv[])
+{
+
+	ifstream input(argv[1]);
+	ofstream output(argv[2]);
+	string value, str;
+	int n = 0;
+
+	while (!input.eof())
+	{
+		getline(input, str);
+		if (str == "") continue;
+		if (str.find("set_size ") == 0) //посмотреть 
+		{
+			value.clear();
+			for (int i = 9; i < str.size(); i++)
+			{
+				if ((str[i] >= '0') && (str[i] <= '9'))
+					value += str[i];
+				else
+				{
+					output << "error" << endl;
+					value.clear();
+					break;
+				}
+			}
+			if (value != "")
+			{
+				n = stoi(value);
+				break;
+			}
+		}
+		else
+		{
+			output << "error" << endl;
+		}
+
+	}
+
+	if (n)
+	{
+		queue<string> rabbit(n);
+		while (!input.eof())
+		{
+			getline(input, str);
+			if ((str=="")) continue;
+			if (str.find("push ") == 0) //
+			{
+				string v;
+				for (int i = 5; i < str.size(); i++)
+				{
+					if (str[i] != ' ') v += str[i];
+					else
+					{
+						output << "error" << endl;
+						v.clear();
+						break;
+					}
+				}
+				if (v!="") rabbit.push(v, output);
+			}
+			
+			else
+			if (str.find("pop") == 0) 
+			{
+				if (str.size()!=3)
+				{
+					output << "error" << endl;
+					continue;
+				}
+				if (rabbit.empty()) output << "underflow" << endl;
+				else
+				{
+					output << rabbit.top()<<endl;
+					rabbit.pop();
+				}
+			}
+			else
+			if (str.find("print") == 0) 
+			{
+				if (str.size()!=5)
+				{
+					output << "error" << endl;
+					continue;
+				}
+				rabbit.print(output);
+			}
+			else
+			{
+				output << "error" << endl;
+			}
+		}
+
+	}
+	
+
+
+	
+	return 0;
+}
